@@ -97,20 +97,24 @@ model = load_model('next_words.h5')
 tokenizer = pickle.load(open('token.pk1', 'rb'))
 
 # Function to predict the next word
-def Predict_Next_Word(model, tokenizer, text):
-  sequence = tokenizer.texts_to_sequences([text])
-  sequence = np.array(sequence)
-  preds = np.argmax(model.predict(sequence))
-  predicted_word = ""
+def Predict_Next_Words(model, tokenizer, text, top_n=5):
+ sequence = tokenizer.texts_to_sequences([text])
+ sequence = np.array(sequence)
+ preds = model.predict(sequence)
+ top_preds_indices = np.argsort(-preds)[0, :top_n]
 
-  # Mapping the predicted index to the corresponding word
-  for key, value in tokenizer.word_index.items():
-    if value == preds:
-      predicted_word = key
-      break
+ predicted_words = []
+ # Mapping the predicted indices to the corresponding words
+ for i in range(top_n):
+    predicted_word = ""
+    for key, value in tokenizer.word_index.items():
+      if value == top_preds_indices[i]:
+        predicted_word = key
+        break
+    predicted_words.append(predicted_word)
 
-  print("Possible next word: " + predicted_word)
-  return predicted_word
+ print("Top " + str(top_n) + " possible words: " + ", ".join(predicted_words))
+ return predicted_words
 
 # Taking user input for predicting the next word
 while True:
@@ -124,7 +128,7 @@ while True:
     try:
       text = text.split(" ")
       text = text[-3:]
-      result = Predict_Next_Word(model, tokenizer, text)
+      result = Predict_Next_Words(model, tokenizer, text)
       print("Predicted next word:", result)
 
     except Exception as e:
