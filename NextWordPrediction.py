@@ -109,6 +109,7 @@ def Predict_Next_Word(model, tokenizer, text):
       predicted_word = key
       break
 
+  print("Possible next word: " + predicted_word)
   return predicted_word
 
 # Taking user input for predicting the next word
